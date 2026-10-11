@@ -19,7 +19,6 @@ interface CarouselSlideProps {
   slide: ExportSlide
   ratio: AspectRatio
   question: string
-  responseCount: number
   sourceKind: 'prompt' | 'thread'
 }
 
@@ -30,7 +29,7 @@ const dimensions: Record<AspectRatio, { width: number; height: number }> = {
 }
 
 const CarouselSlide = forwardRef<HTMLDivElement, CarouselSlideProps>(
-  ({ slide, ratio, question, responseCount, sourceKind }, ref) => {
+  ({ slide, ratio, question, sourceKind }, ref) => {
     const { width, height } = dimensions[ratio]
     const isStory = ratio === 'story'
     const coverOptions = slide.kind === 'cover' ? slide.options : undefined
@@ -63,16 +62,11 @@ const CarouselSlide = forwardRef<HTMLDivElement, CarouselSlideProps>(
               </div>
             )}
 
-            <div style={{ marginTop: hasCoverOptions ? 36 : 48, display: 'inline-flex', alignSelf: 'flex-start', alignItems: 'center', gap: 14, borderRadius: 999, padding: '16px 28px', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)' }}>
-              {isPrompt ? (
+            {isPrompt && (
+              <div style={{ marginTop: hasCoverOptions ? 36 : 48, display: 'inline-flex', alignSelf: 'flex-start', alignItems: 'center', gap: 14, borderRadius: 999, padding: '16px 28px', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)' }}>
                 <span style={{ color: '#C4B5FD', fontSize: isStory ? 24 : 21, fontWeight: 700 }}>Let&apos;s find out what people think 😁</span>
-              ) : (
-                <>
-                  <span style={{ color: '#C4B5FD', fontSize: isStory ? 30 : 26, fontWeight: 800 }}>{responseCount}</span>
-                  <span style={{ color: '#B9B9C6', fontSize: isStory ? 21 : 19 }}>replies</span>
-                </>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
