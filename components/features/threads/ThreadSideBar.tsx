@@ -336,26 +336,31 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = ({
                 </div>
               </div>
 
-              {/* About / Creator */}
-              <div className={sectionCls}>
-                <p className={`${labelCls} mb-3`}>About</p>
-                <div className="flex items-center gap-2.5">
-                  <Identicon seed={getThreadAvatarSeed(thread.author?.id, threadId)} size={32} />
-                  <div>
-                    <p className="text-sm text-[#F2F2F6]">{CREATOR_SENDER_LABEL}</p>
-                  </div>
-                </div>
+              {(thread.isPremium || (isCreator && thread.privacy !== 'public')) && (
+                <div className={sectionCls}>
+                  {thread.isPremium && (
+                    <>
+                      <p className={`${labelCls} mb-3`}>About</p>
+                      <div className="flex items-center gap-2.5">
+                        <Identicon seed={getThreadAvatarSeed(thread.author?.id, threadId)} size={32} />
+                        <div>
+                          <p className="text-sm text-[#F2F2F6]">{CREATOR_SENDER_LABEL}</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
 
-                {isCreator && thread.privacy !== 'public' && (
-                  <button
-                    onClick={() => setShowSettingsPanel(true)}
-                    className="mt-3 w-full py-2 px-4 rounded-xl border border-[#2A2A38] text-sm text-[#8F8FA3] hover:text-[#F2F2F6] hover:border-[#8B5CF6]/40 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Manage private thread
-                  </button>
-                )}
-              </div>
+                  {isCreator && thread.privacy !== 'public' && (
+                    <button
+                      onClick={() => setShowSettingsPanel(true)}
+                      className={`${thread.isPremium ? 'mt-3 ' : ''}w-full py-2 px-4 rounded-xl border border-[#2A2A38] text-sm text-[#8F8FA3] hover:text-[#F2F2F6] hover:border-[#8B5CF6]/40 transition-colors flex items-center justify-center gap-2`}
+                    >
+                      <Settings className="w-4 h-4" />
+                      Manage private thread
+                    </button>
+                  )}
+                </div>
+              )}
 
               {isCreator && <ThreadLinkSection />}
               {isCreator && <ThreadStatusSection />}
@@ -413,7 +418,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = ({
                         <Identicon seed={seed} size={32} />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-[#F2F2F6] truncate">
-                            {isCreator ? CREATOR_SENDER_LABEL : `Participant ${index + 1}`}
+                            {isCreator && thread.isPremium ? CREATOR_SENDER_LABEL : `Participant ${index + 1}`}
                           </p>
                           <p className={subLabelCls}>{participant.messageCount ?? 0} messages</p>
                         </div>

@@ -885,10 +885,10 @@ const ThreadPage = () => {
     return () => clearTimeout(timer);
   }, [isBanned, banPresentation, router]);
 
-  // Get thread creator ID, ensuring it's always a string
   const threadCreatorId = useMemo(() => {
+    if (!currentThread?.isPremium) return '';
     return currentThread?.createdBy?.id ?? currentThread?.authorId ?? '';
-  }, [currentThread?.createdBy?.id, currentThread?.authorId]);
+  }, [currentThread?.isPremium, currentThread?.createdBy?.id, currentThread?.authorId]);
 
   const hasAlreadyVoted = useMemo(() =>
     currentThread?.pollOptions?.some(option => option.hasVoted) || false
