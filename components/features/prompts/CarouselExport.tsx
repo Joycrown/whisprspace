@@ -67,19 +67,20 @@ export default function CarouselExport({ source }: CarouselExportProps) {
     try {
       await promptApi(source.kind === 'prompt' ? `/api/prompts/${source.id}/export` : `/api/threads/${source.id}/export`, { method: 'POST' })
 
-      const { toPng } = await import('html-to-image')
+      const { toBlob } = await import('html-to-image')
       for (let index = 0; index < slides.length; index += 1) {
         const node = slideRefs.current[index]
         if (!node) continue
-        const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true, backgroundColor: '#0A0A10' })
+        const blob = await toBlob(node, { pixelRatio: 2, cacheBust: true, backgroundColor: '#0A0A10' })
+        if (!blob) throw new Error(`Slide ${index + 1} could not be rendered. Please try again.`)
+        const objectUrl = URL.createObjectURL(blob)
         const link = document.createElement('a')
-        link.href = dataUrl
+        link.href = objectUrl
         link.download = `whisprspace-${source.kind}-${source.id}-slide-${index + 1}.png`
+        document.body.appendChild(link)
         link.click()
-        // Browsers silently drop downloads fired back-to-back from a script
-        // (no error, no event) once more than a handful queue up in the same
-        // tick — spacing them out keeps every slide's download from being
-        // dropped once a carousel has several highlighted responses.
+        link.remove()
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000)
         if (index < slides.length - 1) {
           await new Promise((resolve) => setTimeout(resolve, 350))
         }
