@@ -46,15 +46,20 @@ export default function StoryExport({ storyId, title, category, family, episodes
     setBusy(true)
     setError(null)
     try {
-      const { toPng } = await import('html-to-image')
+      const { toBlob } = await import('html-to-image')
       for (let index = 0; index < slides.length; index += 1) {
         const node = slideRefs.current[index]
         if (!node) continue
-        const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true, backgroundColor: '#0A0A10' })
+        const blob = await toBlob(node, { pixelRatio: 2, cacheBust: true, backgroundColor: '#0A0A10' })
+        if (!blob) throw new Error(`Slide ${index + 1} could not be rendered. Please try again.`)
+        const objectUrl = URL.createObjectURL(blob)
         const link = document.createElement('a')
-        link.href = dataUrl
+        link.href = objectUrl
         link.download = `whisprspace-story-${storyId.slice(0, 8)}-${index + 1}.png`
+        document.body.appendChild(link)
         link.click()
+        link.remove()
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000)
         if (index < slides.length - 1) await new Promise((resolve) => setTimeout(resolve, 350))
       }
       import('posthog-js').then(({ default: posthog }) => posthog.capture('story_export_generated', { story_id: storyId, ratio, slides: slides.length, tier: isPremium ? 'premium' : 'free' })).catch(() => {})
