@@ -189,6 +189,7 @@ export interface StoryRepliesPage {
 
 export interface StoryViewerState {
   isAuthor: boolean
+  canExport?: boolean
   isFollowing: boolean
   canParticipate: boolean
   featureConsent: boolean | null

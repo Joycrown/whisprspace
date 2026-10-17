@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
   if (!user) return NextResponse.json(EMPTY)
 
   const [{ data: profile }, { data: story }, { data: follow }, { data: reaction }] = await Promise.all([
-    supabaseAdmin.from('users').select('is_anonymous').eq('id', user.id).maybeSingle(),
+    supabaseAdmin.from('users').select('is_anonymous, is_official').eq('id', user.id).maybeSingle(),
     supabaseAdmin.from('stories').select('author_user_id, feature_consent, reaction_counts, reply_count').eq('id', storyId).maybeSingle(),
     supabaseAdmin.from('story_follows').select('story_id').eq('story_id', storyId).eq('user_id', user.id).maybeSingle(),
     supabaseAdmin.from('story_reactions').select('reaction_type').eq('story_id', storyId).eq('user_id', user.id).maybeSingle(),
@@ -24,6 +24,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
   const isAuthor = Boolean(story && story.author_user_id === user.id)
   const state: StoryViewerState = {
     isAuthor,
+    canExport: isAuthor || profile?.is_official === true,
     isFollowing: Boolean(follow),
     canParticipate: Boolean(profile && !profile.is_anonymous),
     featureConsent: isAuthor ? Boolean(story?.feature_consent) : null,

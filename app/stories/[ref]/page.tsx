@@ -153,6 +153,7 @@ export default async function StoryPage({ params }: PageProps) {
                 storyId={story.id}
                 title={story.title}
                 category={story.category}
+                family={story.family}
                 path={path}
                 canFollow={canFollow}
               />

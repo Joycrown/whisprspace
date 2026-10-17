@@ -109,6 +109,8 @@ export default function StoryShareButton({ story, variant = 'pill', label = 'Sha
           onLinkedIn={shareOnLinkedIn}
           onInstagram={shareOnInstagram}
           onEmail={() => shareViaEmail(story.title)}
+          qrLink={link}
+          qrTitle="Scan to read"
         />
       )}
     </>

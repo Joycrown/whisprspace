@@ -178,6 +178,8 @@ export function PostThreadNudge() {
           onLinkedIn={shareOnLinkedIn}
           onInstagram={shareOnInstagram}
           onEmail={() => shareViaEmail(thread?.title || 'Join the discussion')}
+          qrLink={link || null}
+          qrTitle="Scan to join"
         />
       )}
     </>
