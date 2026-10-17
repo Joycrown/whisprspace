@@ -11,10 +11,6 @@ export interface ReplySlide {
   replies: CarouselReply[]
 }
 
-/**
- * One response per slide, capped at maxSlides. Pure and DOM-free so it can be
- * exercised against real response-length distributions without any rendering.
- */
 export function distributeReplies(
   replies: CarouselReply[],
   ratio: AspectRatio,
