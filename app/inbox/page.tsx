@@ -328,6 +328,8 @@ function InboxPageContent() {
             onLinkedIn={shareOnLinkedIn}
             onInstagram={shareOnInstagram}
             onEmail={shareViaEmail}
+            qrLink={myProfileLink}
+            qrTitle="Scan to message me"
             onDownloadCard={downloadShareCard}
             isGeneratingCard={isGeneratingCard}
           />

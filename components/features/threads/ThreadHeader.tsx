@@ -14,7 +14,10 @@ import { getThreadAvatarSeed } from '@/lib/threads/display-identity';
 import { createThreadInvite } from '@/lib/threads';
 import { useToast } from '@/components/ui/Toast';
 import { buildThreadPath } from '@/lib/threads/thread-url';
-import { Download } from 'lucide-react';
+import { Download, QrCode } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const QrCodeSheet = dynamic(() => import('@/components/features/share/QrCodeSheet'), { ssr: false });
 
 interface ThreadHeaderProps {
   thread: ThreadData | null;
@@ -60,6 +63,7 @@ const ThreadHeader: React.FC<ThreadHeaderProps> = ({
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const [resolvedShareUrl, setResolvedShareUrl] = useState('');
   const [isResolvingShareLink, setIsResolvingShareLink] = useState(false);
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
   const shareButtonRef = useRef<HTMLDivElement>(null);
   const { showToast } = useToast();
   const maxAvatars = 5;
@@ -159,6 +163,13 @@ const ThreadHeader: React.FC<ThreadHeaderProps> = ({
     setShowShareDropdown(false);
   };
 
+  const handleQrCode = async () => {
+    const url = await getShareUrlOrNotify();
+    if (!url) return;
+    setQrUrl(url);
+    setShowShareDropdown(false);
+  };
+
   const handleTwitterShare = async () => {
     const url = await getShareUrlOrNotify();
     if (!url) return;
@@ -229,6 +240,7 @@ const ThreadHeader: React.FC<ThreadHeaderProps> = ({
             <FaShareAlt className="w-3.5 h-3.5" />
             {isResolvingShareLink ? 'Preparing…' : 'Copy link'}
           </button>
+          <button onClick={handleQrCode} disabled={isResolvingShareLink} className={itemCls}><QrCode className="w-3.5 h-3.5" />QR code</button>
           <button onClick={handleTwitterShare} className={itemCls}><FaTwitter className="w-3.5 h-3.5 text-sky-400" />Share on Twitter</button>
           <button onClick={handleFacebookShare} className={itemCls}><FaFacebook className="w-3.5 h-3.5 text-blue-500" />Share on Facebook</button>
           <button onClick={handleThreadsShare} className={itemCls}><FaTwitter className="w-3.5 h-3.5" />Share on Threads</button>
@@ -333,6 +345,7 @@ const ThreadHeader: React.FC<ThreadHeaderProps> = ({
         </div>
       </div>
       <ShareDropdown />
+      {qrUrl && <QrCodeSheet link={qrUrl} title="Scan to join" fileName="whisprspace-discussion-qr" onClose={() => setQrUrl(null)} />}
     </div>
   );
 };

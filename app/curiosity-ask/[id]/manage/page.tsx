@@ -216,6 +216,8 @@ export default function ManagePromptPage() {
         onLinkedIn={shareOnLinkedIn}
         onInstagram={shareOnInstagram}
         onEmail={() => shareViaEmail('Answer this anonymously')}
+        qrLink={promptUrl}
+        qrTitle="Scan to answer"
         onDownloadCard={downloadShareCard}
         isGeneratingCard={isGeneratingCard}
       />
