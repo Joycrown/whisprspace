@@ -200,6 +200,8 @@ export default function PromptComposer() {
             onLinkedIn={shareOnLinkedIn}
             onInstagram={shareOnInstagram}
             onEmail={() => shareViaEmail('Answer this anonymously')}
+            qrLink={promptUrl}
+            qrTitle="Scan to answer"
             onDownloadCard={downloadShareCard}
             isGeneratingCard={isGeneratingCard}
           />

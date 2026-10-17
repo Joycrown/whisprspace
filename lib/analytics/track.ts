@@ -27,13 +27,13 @@ export type AnalyticsEvent =
   | 'create_menu_opened'
   | 'create_option_chosen'
 
-export type AnalyticsSource = 'feed' | 'shared_link' | 'notification' | 'marketing' | 'search' | 'direct' | 'in_app'
+export type AnalyticsSource = 'feed' | 'shared_link' | 'qr' | 'notification' | 'marketing' | 'search' | 'direct' | 'in_app'
 
 export function detectSource(): AnalyticsSource {
   if (typeof window === 'undefined') return 'direct'
   const params = new URLSearchParams(window.location.search)
   const explicit = params.get('src')
-  if (explicit === 'notification' || explicit === 'marketing' || explicit === 'shared_link') return explicit
+  if (explicit === 'notification' || explicit === 'marketing' || explicit === 'shared_link' || explicit === 'qr') return explicit
   if (window.location.hash === '#comments') return 'notification'
   const referrer = document.referrer
   if (!referrer) return 'direct'

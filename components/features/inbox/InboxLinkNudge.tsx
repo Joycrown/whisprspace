@@ -125,6 +125,8 @@ export function InboxLinkNudge() {
           onLinkedIn={shareOnLinkedIn}
           onInstagram={shareOnInstagram}
           onEmail={shareViaEmail}
+          qrLink={link}
+          qrTitle="Scan to message me"
           onDownloadCard={downloadShareCard}
           isGeneratingCard={isGeneratingCard}
         />

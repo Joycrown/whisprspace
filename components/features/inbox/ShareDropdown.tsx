@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import dynamic from 'next/dynamic'
 import {
   FaTwitter,
   FaFacebook,
@@ -11,7 +12,9 @@ import {
   FaEnvelope,
   FaLink,
 } from 'react-icons/fa'
-import { Download, Loader2 } from 'lucide-react'
+import { Download, Loader2, QrCode } from 'lucide-react'
+
+const QrCodeSheet = dynamic(() => import('@/components/features/share/QrCodeSheet'), { ssr: false })
 
 interface ShareDropdownProps {
   position: { top: number; right: number; anchorTop?: number }
@@ -25,6 +28,8 @@ interface ShareDropdownProps {
   onEmail: () => void
   onDownloadCard?: () => void
   isGeneratingCard?: boolean
+  qrLink?: string | null
+  qrTitle?: string
 }
 
 export function ShareDropdown({
@@ -39,10 +44,13 @@ export function ShareDropdown({
   onEmail,
   onDownloadCard,
   isGeneratingCard,
+  qrLink,
+  qrTitle,
 }: ShareDropdownProps) {
   const menuRef = useRef<HTMLDivElement>(null)
   const [isSheet, setIsSheet] = useState(false)
   const [top, setTop] = useState(position.top)
+  const [showQr, setShowQr] = useState(false)
 
   useLayoutEffect(() => {
     const sheet = window.innerWidth < 640
@@ -59,6 +67,10 @@ export function ShareDropdown({
   }, [position.top, position.anchorTop])
 
   if (typeof window === 'undefined') return null
+
+  if (showQr && qrLink) {
+    return <QrCodeSheet link={qrLink} title={qrTitle} onClose={onClose} />
+  }
 
   return createPortal(
     <>
@@ -80,6 +92,17 @@ export function ShareDropdown({
           <FaLink className="w-3.5 h-3.5 text-gray-300 flex-shrink-0" />
           Copy link
         </button>
+
+        {qrLink && (
+          <button
+            onClick={() => setShowQr(true)}
+            className="flex items-center gap-3 px-4 py-2.5 text-sm text-[#8F8FA3] hover:text-[#F2F2F6] hover:bg-white/[0.04] w-full text-left transition-colors"
+          >
+            <QrCode className="w-3.5 h-3.5 text-gray-300 flex-shrink-0" />
+            QR code
+            <span className="ml-auto text-[10px] text-[#5C5C6E]">Scan</span>
+          </button>
+        )}
 
         {/* Download card — full image for Status/Stories */}
         {onDownloadCard && (

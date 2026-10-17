@@ -2,26 +2,31 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Bell, BellOff, Flag, Loader2, Settings2 } from 'lucide-react'
+import { Bell, BellOff, Download, Flag, Loader2, Settings2 } from 'lucide-react'
 import { isPushSupported, subscribeDeviceToPush } from '@/lib/notifications/push-client'
 import { storiesApi } from '@/lib/stories/api-client'
-import type { StoryCategory } from '@/lib/stories/types'
+import type { StoryCategory, StoryFamily } from '@/lib/stories/types'
+import { useUserStore } from '@/store/userStore'
 import { useStoryViewer } from './StoryViewerContext'
 import ReportStoryModal from './ReportStoryModal'
+import StoryExportModal from './StoryExportModal'
 import StoryShareButton from './StoryShareButton'
 
 interface StoryActionsProps {
   storyId: string
   title: string
   category: StoryCategory
+  family: StoryFamily
   path: string
   canFollow: boolean
 }
 
-export default function StoryActions({ storyId, title, category, path, canFollow }: StoryActionsProps) {
+export default function StoryActions({ storyId, title, category, family, path, canFollow }: StoryActionsProps) {
   const { viewer, isRegistered, setFollowing, requireAccount } = useStoryViewer()
+  const isPremium = useUserStore((state) => Boolean(state.session.user?.isPremium))
   const [followBusy, setFollowBusy] = useState(false)
   const [reporting, setReporting] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const toggleFollow = async () => {
     if (!isRegistered) {
@@ -56,6 +61,12 @@ export default function StoryActions({ storyId, title, category, path, canFollow
         </button>
       )}
       <StoryShareButton story={{ id: storyId, title, category }} variant="pill" />
+      {viewer.canExport && !viewer.isAuthor && (
+        <button onClick={() => setExporting(true)} className={button}>
+          <Download className="h-3.5 w-3.5" />
+          Export
+        </button>
+      )}
       {viewer.isAuthor ? (
         <Link href={`${path}/manage`} prefetch={false} className={button}>
           <Settings2 className="h-3.5 w-3.5" />
@@ -68,6 +79,16 @@ export default function StoryActions({ storyId, title, category, path, canFollow
         </button>
       )}
       {reporting && <ReportStoryModal storyId={storyId} onClose={() => setReporting(false)} />}
+      {exporting && (
+        <StoryExportModal
+          storyId={storyId}
+          title={title}
+          category={category}
+          family={family}
+          isPremium={isPremium}
+          onClose={() => setExporting(false)}
+        />
+      )}
     </div>
   )
 }
