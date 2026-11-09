@@ -47,7 +47,9 @@ export function storyNotificationPath(data: Record<string, unknown>): string | n
   if (typeof data.story_id !== 'string') return null
   const storyPath = buildStoryPath({ id: data.story_id, title: typeof data.story_title === 'string' ? data.story_title : null })
   if (data.open === 'manage') return `${storyPath}/manage`
-  return typeof data.message_id === 'string' ? `${storyPath}#comments` : storyPath
+  if (typeof data.message_id === 'string') return `${storyPath}#comments`
+  const episodeNumber = Number(data.episode_number)
+  return Number.isInteger(episodeNumber) && episodeNumber > 1 ? `${storyPath}#episode-${episodeNumber}` : storyPath
 }
 
 export function isCanonicalStoryRef(ref: string, source: StoryUrlSource): boolean {

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { Eye } from 'lucide-react'
 import BackButton from '@/components/navigation/BackButton'
+import EpisodeCarousel from '@/components/features/stories/EpisodeCarousel'
 import RelativeTime from '@/components/features/stories/RelativeTime'
 import SensitiveGate from '@/components/features/stories/SensitiveGate'
 import StoriesTopBar from '@/components/features/stories/StoriesTopBar'
@@ -91,22 +92,30 @@ export default async function StoryPage({ params }: PageProps) {
 
   const wordCount = story.episodes.reduce((total, episode) => total + (episode.body.match(/\S+/g)?.length ?? 0), 0)
 
+  const articles = story.episodes.map((episode) => (
+    <article key={episode.number} id={multi ? undefined : `episode-${episode.number}`}>
+      {multi && (
+        <header className="mb-3 flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-[#F97316]">
+          Episode {episode.number}
+          <span className="normal-case tracking-normal text-[#5C5C6E]">
+            · <RelativeTime iso={episode.published_at} />
+          </span>
+        </header>
+      )}
+      <div className="whitespace-pre-wrap break-words text-[16px] leading-[1.8] text-[#E6E6EC]">{episode.body}</div>
+      {episode.edited_at && <p className="mt-2 text-[11px] text-[#5C5C6E]">Edited</p>}
+    </article>
+  ))
+
   const body = (
     <div className="space-y-8">
-      {story.episodes.map((episode) => (
-        <article key={episode.number} id={`episode-${episode.number}`} className="[content-visibility:auto] [contain-intrinsic-size:auto_600px]">
-          {multi && (
-            <header className="mb-3 flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-[#F97316]">
-              Episode {episode.number}
-              <span className="normal-case tracking-normal text-[#5C5C6E]">
-                · <RelativeTime iso={episode.published_at} />
-              </span>
-            </header>
-          )}
-          <div className="whitespace-pre-wrap break-words text-[16px] leading-[1.8] text-[#E6E6EC]">{episode.body}</div>
-          {episode.edited_at && <p className="mt-2 text-[11px] text-[#5C5C6E]">Edited</p>}
-        </article>
-      ))}
+      {story.episodes.length > 1 ? (
+        <EpisodeCarousel storyId={story.id} episodeNumbers={story.episodes.map((episode) => episode.number)}>
+          {articles}
+        </EpisodeCarousel>
+      ) : (
+        articles
+      )}
       <StoryReadTracker storyId={story.id} category={story.category} episodeCount={story.episode_count} wordCount={wordCount} />
     </div>
   )
