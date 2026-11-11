@@ -1,8 +1,8 @@
 'use client'
 
-import { forwardRef } from 'react'
+import { forwardRef, useLayoutEffect, useRef, useState } from 'react'
 import { FaFacebook, FaInstagram, FaThreads, FaTiktok, FaXTwitter } from 'react-icons/fa6'
-import type { AspectRatio, ReplySlide } from '@/lib/prompts/carousel-layout'
+import type { AspectRatio, CarouselReply, ReplySlide } from '@/lib/prompts/carousel-layout'
 import type { IcebreakerTallyEntry } from '@/lib/prompts/icebreaker-results'
 
 const SOCIAL_HANDLE = '@whisprspace'
@@ -12,8 +12,51 @@ const SOCIAL_ICONS = [FaInstagram, FaTiktok, FaXTwitter, FaFacebook, FaThreads]
 export type ExportSlide =
   | { kind: 'cover'; options?: string[] }
   | ReplySlide
+  | { kind: 'question-reply'; reply: CarouselReply }
   | { kind: 'results'; entries: IcebreakerTallyEntry[]; headline: string }
   | { kind: 'cta'; url: string; cta: string }
+
+const MIN_QUESTION_SIZE = 22
+const MIN_ANSWER_SIZE = 16
+const FIT_STEP = 2
+
+function baseSizes(ratio: AspectRatio, question: string, answer: string) {
+  const scale = ratio === 'story' ? 1.12 : ratio === 'square' ? 0.9 : 1
+  const questionSize = question.length > 120 ? 34 : question.length > 60 ? 40 : 46
+  const answerSize = answer.length > 900 ? 26 : answer.length > 450 ? 30 : answer.length > 180 ? 34 : 40
+  return { question: Math.round(questionSize * scale), answer: Math.round(answerSize * scale) }
+}
+
+function QuestionReplyBody({ ratio, question, reply, isPrompt }: { ratio: AspectRatio; question: string; reply: CarouselReply; isPrompt: boolean }) {
+  const frameRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [shrink, setShrink] = useState(0)
+  const base = baseSizes(ratio, question, reply.content)
+  const questionSize = Math.max(MIN_QUESTION_SIZE, base.question - shrink * FIT_STEP)
+  const answerSize = Math.max(MIN_ANSWER_SIZE, base.answer - shrink * FIT_STEP)
+  const isStory = ratio === 'story'
+
+  useLayoutEffect(() => {
+    const frame = frameRef.current
+    const content = contentRef.current
+    if (!frame || !content) return
+    const atFloor = questionSize === MIN_QUESTION_SIZE && answerSize === MIN_ANSWER_SIZE
+    if (content.offsetHeight > frame.clientHeight && !atFloor) setShrink((value) => value + 1)
+  }, [questionSize, answerSize])
+
+  return (
+    <div ref={frameRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+      <div ref={contentRef}>
+        <div style={{ color: '#F97316', fontSize: 19, letterSpacing: '0.14em', fontWeight: 700, textTransform: 'uppercase', marginBottom: 18 }}>{isPrompt ? 'The question' : 'The discussion'}</div>
+        <div style={{ fontSize: questionSize, lineHeight: 1.15, fontWeight: 800, letterSpacing: '-1px' }}>{question}</div>
+        <div style={{ marginTop: isStory ? 44 : 34, border: '1px solid #29283A', borderRadius: 28, padding: isStory ? '40px 38px' : '34px 36px', background: 'rgba(255,255,255,0.035)' }}>
+          <div style={{ color: '#C4B5FD', fontSize: 17, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>{reply.optionLabel ? `Picked: ${reply.optionLabel}` : isPrompt ? 'Anonymous answer' : 'Anonymous reply'}</div>
+          <div style={{ color: '#ECECF1', fontSize: answerSize, lineHeight: 1.45, fontWeight: 500, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>&ldquo;{reply.content}&rdquo;</div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 interface CarouselSlideProps {
   slide: ExportSlide
@@ -79,6 +122,10 @@ const CarouselSlide = forwardRef<HTMLDivElement, CarouselSlideProps>(
               </div>
             ))}
           </div>
+        )}
+
+        {slide.kind === 'question-reply' && (
+          <QuestionReplyBody key={`${ratio}:${slide.reply.id}`} ratio={ratio} question={question} reply={slide.reply} isPrompt={isPrompt} />
         )}
 
         {slide.kind === 'results' && (
