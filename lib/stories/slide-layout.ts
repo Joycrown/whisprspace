@@ -1,5 +1,5 @@
-export const MAX_BODY_SLIDES = 2
 export const CHARS_PER_SLIDE = 420
+export const INSTAGRAM_CAROUSEL_LIMIT = 20
 
 export const SLIDE_HOOKS = [
   'The discussion will leave you hanging.',
@@ -40,7 +40,7 @@ function splitLong(text: string, budget: number): string[] {
   return parts
 }
 
-export function chunkStoryText(body: string, maxSlides: number = MAX_BODY_SLIDES): { chunks: string[]; truncated: boolean } {
+export function chunkStoryText(body: string): string[] {
   const budget = CHARS_PER_SLIDE
   const units = body
     .split(/\n{2,}/)
@@ -60,9 +60,5 @@ export function chunkStoryText(body: string, maxSlides: number = MAX_BODY_SLIDES
     }
   }
   if (current) chunks.push(current)
-
-  if (chunks.length <= maxSlides) return { chunks, truncated: false }
-  const kept = chunks.slice(0, maxSlides)
-  kept[kept.length - 1] = `${kept[kept.length - 1].replace(/[.!?…]*$/, '')}…`
-  return { chunks: kept, truncated: true }
+  return chunks
 }

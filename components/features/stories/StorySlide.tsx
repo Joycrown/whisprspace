@@ -11,8 +11,8 @@ const SOCIAL_ICONS = [FaInstagram, FaTiktok, FaXTwitter, FaFacebook, FaThreads]
 
 export type StorySlideData =
   | { kind: 'cover'; episodeNumber: number | null }
-  | { kind: 'body'; text: string; index: number; total: number; truncated: boolean }
-  | { kind: 'cta'; hook: string }
+  | { kind: 'body'; text: string; index: number; total: number }
+  | { kind: 'cta'; hook: string; eyebrow: string }
 
 interface StorySlideProps {
   slide: StorySlideData
@@ -58,8 +58,7 @@ const StorySlide = forwardRef<HTMLDivElement, StorySlideProps>(({ slide, ratio, 
       {slide.kind === 'body' && (
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>
           <div style={{ color: '#ECECF1', fontSize: isStory ? 40 : ratio === 'portrait' ? 36 : 33, lineHeight: 1.55, fontWeight: 500, whiteSpace: 'pre-wrap' }}>{slide.text}</div>
-          <div style={{ marginTop: 36, display: 'flex', justifyContent: 'space-between', color: '#5C5C6E', fontSize: 19 }}>
-            <span>{slide.truncated && slide.index === slide.total ? 'Continued on WhisprSpace' : ''}</span>
+          <div style={{ marginTop: 36, display: 'flex', justifyContent: 'flex-end', color: '#5C5C6E', fontSize: 19 }}>
             <span>{slide.index}/{slide.total}</span>
           </div>
         </div>
@@ -67,7 +66,7 @@ const StorySlide = forwardRef<HTMLDivElement, StorySlideProps>(({ slide, ratio, 
 
       {slide.kind === 'cta' && (
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', flex: 1 }}>
-          <div style={{ color: '#F97316', fontSize: 20, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 22 }}>Read the full story on WhisprSpace</div>
+          <div style={{ color: '#F97316', fontSize: 20, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 22 }}>{slide.eyebrow}</div>
           <div style={{ color: '#DFDFE7', fontSize: isStory ? 34 : 30, lineHeight: 1.25, fontWeight: 600, maxWidth: 820, fontStyle: 'italic' }}>&ldquo;{title}&rdquo;</div>
           <div style={{ marginTop: 36, fontSize: isStory ? 64 : 54, lineHeight: 1.1, fontWeight: 800, letterSpacing: '-1.8px', maxWidth: 820 }}>{slide.hook}</div>
           <div style={{ marginTop: 44, borderRadius: 999, padding: '20px 32px', background: 'linear-gradient(100deg, #8B5CF6, #F97316)', color: '#fff', fontSize: 23, fontWeight: 700 }}>{WEB_DOMAIN}</div>
